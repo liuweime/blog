@@ -1,0 +1,13 @@
+article_list:
+    01:
+        name: 测试文章
+        author: lw
+        category: Java
+        datetime: 2019-09-10 10:34:50
+        description: 一盘测试发送到
+    02:
+        name: 测试文章2
+        author: lw
+        category: PHP
+        datetime: 2019-09-10 10:34:50
+        description: 一盘测试发送到去
