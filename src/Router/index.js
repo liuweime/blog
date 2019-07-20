@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Layout from '@/views/Layout.vue'
 import LeftNav from '@/components/LeftNav.vue'
+import PostBody from '@/components/PostBody.vue'
 
 Vue.use(Router)
 
@@ -10,12 +10,10 @@ export default new Router({
     {
       path: '/',
       name: 'home',
-      component: Layout,
-      children: [{
-          path: '',
-          name: 'nav',
-          component: LeftNav
-        }]
+      components: {
+        nav: LeftNav,
+        body: PostBody
+      }
     }
   ]
 })

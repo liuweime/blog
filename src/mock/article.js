@@ -68,6 +68,10 @@ for(let i = 0; i < len; i++) {
 [TOC]
 
 ## Markdown简介
+### 测试
+#### 测试
+##### 测试
+###### 测试
 
 > Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面。    —— [维基百科](https://zh.wikipedia.org/wiki/Markdown)
 
@@ -218,7 +222,7 @@ articles = articles.sort((obja, objb) => {
 export default {
   getList: (config) => {
     let { page = 1} = parseurl(config.url)
-    const limit = 5
+    const limit = 10
     page = parseInt(page)
 
     // 切割列表
@@ -293,14 +297,15 @@ export default {
           article = item
           break
         }
-
       }
     }
 
     return {
       code: 0,
       msg: '',
-      info: article
+      info: {
+        data: article
+      }
     }
   }
 }

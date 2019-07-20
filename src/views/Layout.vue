@@ -3,7 +3,9 @@
         <div class="row nav">
             <router-view/>
         </div>
-        <div class="row body"></div>
+        <div class="row body">
+            <router-view name="body"></router-view>
+        </div>
     </div>
 </template>
 

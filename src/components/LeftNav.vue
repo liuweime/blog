@@ -25,19 +25,26 @@
         </div>
     </div>
     <!-- 文件列表 -->
-    <div class="nav-body">
-        <nav-list v-for="article in articles" :key="article.id" :post="article"></nav-list>
+    <div class="nav-body" ref='navBody' v-show="showBody">
+        <nav-list v-for="(article, index) in articles" :key="article.id" :post="article"  @click.native="articleShow(article, index)"></nav-list>
     </div>
+    <div class="toc" v-show="showToc" v-html="tocList"></div>
   </div>
 </template>
 
 <script>
-// import { mapMutations } from 'vuex'
+import { mapMutations } from 'vuex'
 import NavList from './NavList'
 export default {
     name: "LeftNav",
     mounted() {
         this.getArticleList();
+        this.navBody = this.$refs.navBody;
+    },
+    computed: {
+        tocList() {
+            return this.$store.state.toc;
+        }
     },
     data() {
         return {
@@ -45,9 +52,13 @@ export default {
             switchIcon: 'list-ol',
             isNav: true,
             isSearch: false,
+            showBody: true,
+            showToc: false,
             nav: this.$store.state.nav,
             links: this.$store.state.api.article.index,
-            articles: []
+            articles: [],
+            navBody: null,
+            toc: ""
         }
     },
     methods: {
@@ -60,6 +71,8 @@ export default {
                 this.navName = '文件';
             }
             this.isNav = !this.isNav;
+            this.showBody = !this.showBody;
+            this.showToc = !this.showToc;
         },
 
         showSearch() {
@@ -83,15 +96,26 @@ export default {
                 } else {
                     this.articles = this.articles.concat(result.info.data)
                 }
+                this.articleShow(this.articles[0], 0);
                 this.links = result.info.links.next
                 this.flag = true
                 }
             });
-        }
+        },
+        articleShow(data, index) {
+            if (index % 5 == 0) {
+                this.navBody.scrollTop = 150 * index;
+            }
+            
+            this.$store.commit('setArticle', {articleId: data.id});
+        },
+        ...mapMutations([
+        'setArticle'
+        ])
     },
     components: {
         NavList
-    }
+    },
 }
 </script>
 
@@ -153,6 +177,40 @@ export default {
                 }
             }
         }
+    }
+}
+.nav-body {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 95vh;
+}
+.toc {
+    overflow-x: hidden;
+    margin-top: 10px;
+    ul {
+        text-decoration: none;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+            line-height: 35px;
+            a {
+                padding-left: 20px; 
+                width: 100%;
+                display: inline-block;
+            }
+            a:hover {
+                background: #e4e4e1;
+                text-decoration: underline;
+            }
+            ul li a {
+                padding-left: 40px;
+            }
+        }
+    }
+    a {
+        color: #252525;
+        text-decoration: none;
     }
 }
 </style>
