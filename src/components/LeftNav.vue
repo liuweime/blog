@@ -16,7 +16,7 @@
                     <font-awesome-icon icon="angle-left" />
                 </div>
                 <div class="search-input">
-                    <input type="text" class="input" placeholder="查找">
+                    <input type="text" class="input" placeholder="查找" v-model="search">
                 </div>
             </div>
             <div class="search-btn" @click="showSearch">
@@ -25,10 +25,17 @@
         </div>
     </div>
     <!-- 文件列表 -->
-    <div class="nav-body" ref='navBody' v-show="showBody">
-        <nav-list v-for="(article, index) in articles" :key="article.id" :post="article"  @click.native="articleShow(article, index)"></nav-list>
+    <div class="nav-body" ref='navBody'>
+        <!-- 文章列表 -->
+        <div class="nav-content"  v-show="showBody">
+            <nav-list v-for="(article) in articles" :key="article.id" :post="article"  @click.native="articleShow(article.id, $event)"></nav-list>
+            <!-- 更多 -->
+            <div class="more" @click="loadMore()" v-show="flag">more...</div>
+        </div>
+        <!-- 文章导航 -->
+        <div class="toc" v-show="showToc" v-html="tocList"></div>  
     </div>
-    <div class="toc" v-show="showToc" v-html="tocList"></div>
+    
   </div>
 </template>
 
@@ -58,7 +65,9 @@ export default {
             links: this.$store.state.api.article.index,
             articles: [],
             navBody: null,
-            toc: ""
+            toc: "",
+            flag: false,
+            search: ""
         }
     },
     methods: {
@@ -84,33 +93,49 @@ export default {
         closeSearch() {
             if (this.isSearch) {
                 this.isSearch = false;
+                this.search = "";
             }
         },
 
         getArticleList() {
+            if (!this.links) {
+                return false;
+            }
             this.$axios.get(this.links).then((res) => {
                 const result = res.data;
                 if (result.code === 0) {
-                if (this.articles.length === 0) {
-                    this.articles = result.info.data
-                } else {
-                    this.articles = this.articles.concat(result.info.data)
-                }
-                this.articleShow(this.articles[0], 0);
-                this.links = result.info.links.next
-                this.flag = true
+                    if (this.articles.length === 0) {
+                        this.articles = result.info.data
+                    } else {
+                        this.articles = this.articles.concat(result.info.data)
+                    }
+
+                    // 显示
+                    const articleId = this.$store.state.articleId ? this.$store.state.articleId : this.articles[0].id;
+                    this.articleShow(articleId);
+                    
+                    if (result.info.links.next) {
+                        this.links = result.info.links.next
+                        this.flag = true;
+                    } else {
+                        this.links = null;
+                        this.flag = false;
+                    }
                 }
             });
         },
-        articleShow(data, index) {
-            if (index % 5 == 0) {
-                this.navBody.scrollTop = 150 * index;
+        articleShow(articleId, e) {
+            if (e && e.screenY > screen.height * 3/4) {
+                this.navBody.scrollTop = this.navBody.scrollTop + 500;
             }
             
-            this.$store.commit('setArticle', {articleId: data.id});
+            this.$store.commit('setArticle', {articleId: articleId});
+        },
+        loadMore() {
+            this.getArticleList();
         },
         ...mapMutations([
-        'setArticle'
+            'setArticle'
         ])
     },
     components: {
@@ -130,17 +155,17 @@ export default {
     }
     .nav-switch {
         cursor: pointer;
-
         width: 50px;
         text-align: center;
+        float: left;
     }
     .nav-title {
         text-align: center;
-        display: inline-block;
-        width: 170px;
+        float: left;
+        width: 55%;
     }
     .blog-search {
-        display: inline-block;
+        float: right;
         width: 50px;
         .search-btn {
             width: 50px;
@@ -183,6 +208,19 @@ export default {
     overflow-x: hidden;
     overflow-y: scroll;
     height: 95vh;
+    .more {
+        width: 100%;
+        height: 35px;
+        background: #ecebe5;
+        line-height: 35px;
+        text-align: center;
+        border-top: 1px solid #e2e2e1;
+        color: #333;
+        cursor: pointer;
+    }
+    .more:hover {
+        background: #e2e2e2;
+    }
 }
 .toc {
     overflow-x: hidden;
@@ -193,11 +231,15 @@ export default {
         margin: 0;
         padding: 0;
         li {
+            width: 90%;
             line-height: 35px;
             a {
                 padding-left: 20px; 
                 width: 100%;
                 display: inline-block;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
             }
             a:hover {
                 background: #e4e4e1;

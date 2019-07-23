@@ -26,6 +26,22 @@ Vue.directive('highlight', (el) => {
   })
 })
 
+Vue.directive('comment', (el) => {
+  let doms = el.querySelectorAll('p');
+  doms.forEach((dom) => {
+    if (dom.getElementsByClassName('comment-icon').length == 0) {
+      let comment = document.createElement('div');
+      comment.className = 'comment-icon';
+      let icon = document.createElement('div');
+      icon.className = 'icon';
+      icon.innerText = '+';
+      comment.appendChild(icon);
+      dom.appendChild(comment);
+    }
+    
+  })
+});
+
 new Vue({
   store,
   router,
