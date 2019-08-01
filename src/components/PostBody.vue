@@ -1,10 +1,16 @@
 <template lang="html">
-    <div class="post-body">
-        <div class="post-title">
-            <h1>{{articles.title}}</h1>
+    <div class="post-body" >
+        <div class="post-article" :class="{move: isMove}">
+            <div class="post-title">
+                <h1>{{articles.title}}</h1>
+            </div>
+            <div class="post-content">
+                <vue-markdown id="article" :source="articles.content" :toc="true" v-on:toc-rendered="toAllRight" v-highlight v-comment="comment"></vue-markdown>
+            </div>
         </div>
-        <div class="post-content">
-            <vue-markdown id="article" :source="articles.content" :toc="true" v-on:toc-rendered="toAllRight" v-highlight v-comment></vue-markdown>
+
+        <div class="post-comment">
+            <comment :top="top"></comment>
         </div>
     </div>
      
@@ -13,6 +19,7 @@
 <script>
 import { mapMutations } from 'vuex'
 import VueMarkdown from 'vue-markdown'
+import comment from './comment';
 export default {
     name: "PostBody",
     data() {
@@ -21,7 +28,9 @@ export default {
             id: 0,
             show: false,
             articleId: 0,
-            tesdt: '## 这里是要展示的markdown文字，也可以通过props传递'
+            tesdt: '## 这里是要展示的markdown文字，也可以通过props传递',
+            isMove: false,
+            top: 0
         }
     },
     computed: {
@@ -51,21 +60,67 @@ export default {
                 toc: tocHtmlStr
             });
         },
+        comment(e) {
+            this.isMove = true;
+            let top = e.clientY;
+            this.$store.commit('setTop', {
+                top: top
+            });
+            if (e.target.className == 'icon') {
+                e.target.parentElement.setAttribute('class', 'comment-icon test')
+            } else {
+                e.target.setAttribute('class', 'comment-icon test')
+            }
+        },
         ...mapMutations([
-            'setToc'
+            'setToc',
+            'setTop'
         ])
     },
+    directives: {
+        comment: {
+            update: (el, binding) => {
+                
+                let doms = el.querySelectorAll('p');
+                doms.forEach((dom) => {
+                    if (dom.getElementsByClassName('comment-icon').length == 0) {
+                        let comment = document.createElement('div');
+                        comment.className = 'comment-icon';
+                        let icon = document.createElement('div');
+                        icon.className = 'icon';
+                        icon.innerText = '+';
+                        comment.appendChild(icon);
+                        comment.addEventListener('click', binding.value, true)
+                        dom.appendChild(comment);
+                    }
+                });
+            }
+        }
+    },
     components: {
-        VueMarkdown  // 声明组件
+        VueMarkdown,
+        comment
     }
 }
+
 </script>
 
 <style lang="scss">
+    
     .post-body {
+        width: 100%;
         margin-top: 50px;
-        width: 960px;
-        margin: 0 auto;
+        .post-article {
+            width: 70%;
+            position: absolute;
+            left: 15%;
+        }
+        .move {
+            left: 5% !important;
+            .test {
+                display: none !important;
+            }
+        }
         .post-title {
             h1 {
                 font-size: 1.875em;

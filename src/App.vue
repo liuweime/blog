@@ -35,6 +35,7 @@ body {
     padding: 0px 20px;
     height: 100vh;
     overflow-y: scroll;
+    position: relative;
   }
 }
 </style>

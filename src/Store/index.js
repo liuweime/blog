@@ -11,7 +11,8 @@ export default new Vuex.Store({
     api: api(),
     nav: nav.list,
     articleId: storage.get('articleId'),
-    toc: ""
+    toc: "",
+    top: 0
   },
   mutations: {
     setArticle(state, payload) {
@@ -20,6 +21,9 @@ export default new Vuex.Store({
     },
     setToc(state, payload) {
       state.toc = payload.toc;
+    },
+    setTop(state, payload) {
+      state.top = payload.top;
     }
   },
   actions: {
